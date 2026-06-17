@@ -337,6 +337,7 @@ report's Web URL column at `https://<host>/api/doc?path=<blob path>`.
 | `ALLOWED_PREFIXES` | Optional comma-separated path prefixes to allow (empty = whole container) |
 | `MAX_DOWNLOAD_BYTES` | Size cap streamed through the gateway (default 100 MiB) |
 | `MAX_PATH_LENGTH` | Maximum blob path length accepted (default 1024) |
+| `AZURE_CLIENT_ID` | Client ID of the user-assigned managed identity. **Required** so `DefaultAzureCredential` uses the right identity when reading the docs storage. |
 
 ## Security properties
 
