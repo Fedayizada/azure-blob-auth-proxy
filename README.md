@@ -13,21 +13,66 @@ and no Key Vault — every connection uses Entra ID and managed identity.
 > your own security, compliance, and operational requirements before any
 > production use. You assume all risk arising from its use. See [LICENSE](LICENSE).
 
+### Request flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User (browser)
+    participant PBI as Power BI report
+    participant EA as Easy Auth (Entra)
+    participant Fn as Azure Function (Flex)
+    participant ST as Private Storage
+
+    User->>PBI: View report
+    User->>Fn: Click link /api/doc?path=invoices/2024/INV-123.pdf
+    Fn->>EA: Unauthenticated?
+    EA-->>User: 302 redirect to Entra login
+    User->>EA: Sign in (or silent SSO)
+    EA-->>Fn: Inject X-MS-CLIENT-PRINCIPAL (identity + groups)
+    Fn->>Fn: Authorize: caller in allowed Entra group?
+    alt Not a member
+        Fn-->>User: 403 Forbidden
+    else Member
+        Fn->>ST: Read blob via managed identity (no keys/SAS)
+        ST-->>Fn: Blob bytes + content type
+        Fn-->>User: 200 stream document (inline / download)
+    end
 ```
-Power BI (Web URL column)
-   https://<gateway>/api/doc?path=invoices/2024/INV-123.pdf
-        │  user clicks
-        ▼
-Azure Function (Flex Consumption)  ── Easy Auth (Entra login) ──▶ in allowed group?
-   • parse X-MS-CLIENT-PRINCIPAL
-   • require membership in an allowed Entra group
-        │  (user-assigned managed identity)
-        ▼
-Private Storage Account  (no public access, shared keys disabled)
-   • read the blob from the fixed container
-   • stream bytes back
-        ▼
-Browser opens the document
+
+### Architecture (private networking)
+
+```mermaid
+flowchart LR
+    User([User on corp network / VPN])
+
+    subgraph Entra[Microsoft Entra ID]
+        AppReg[App Registration<br/>group-scoped app role]
+        Grp[Allowed Entra group]
+    end
+
+    subgraph VNet[Virtual Network]
+        PEf[Private Endpoint: Function]
+        subgraph Fn[Azure Function - Flex Consumption]
+            Code[Easy Auth + group check<br/>stream blob]
+        end
+        PEd[Private Endpoint: docs blob]
+        PEr[Private Endpoints: runtime blob/queue/table]
+    end
+
+    UAMI[/User-assigned managed identity/]
+    Docs[(Docs Storage<br/>public access off, keys off)]
+    Runtime[(Runtime Storage<br/>deployment + host)]
+    AI[[Application Insights]]
+
+    User -->|click link| PEf --> Code
+    Code -. Easy Auth login .-> AppReg
+    AppReg -. trusts via federated credential .- UAMI
+    Grp -. assigned to .-> AppReg
+    Code -->|uses| UAMI
+    UAMI -->|Storage Blob Data Reader| PEd --> Docs
+    UAMI -->|Storage Blob Data Owner| PEr --> Runtime
+    Code -. telemetry .-> AI
 ```
 
 ## Layout
