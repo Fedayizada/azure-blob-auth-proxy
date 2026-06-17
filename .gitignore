@@ -1,0 +1,27 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+.package/
+crash.log
+terraform.tfvars
+*.auto.tfvars
+# Note: .terraform.lock.hcl is intentionally committed for reproducible provider versions.
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Azure Functions local
+src/functionapp/local.settings.json
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

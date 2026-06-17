@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "DOCS_STORAGE_ACCOUNT": "mydocsaccount",
+    "DOCS_CONTAINER": "legacy-docs",
+    "ALLOWED_GROUP_IDS": "00000000-0000-0000-0000-000000000000",
+    "ALLOWED_PREFIXES": "",
+    "MAX_DOWNLOAD_BYTES": "104857600",
+    "MAX_PATH_LENGTH": "1024"
+  }
+}

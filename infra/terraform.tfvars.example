@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars and fill in. Do not commit terraform.tfvars.
+
+subscription_id         = "00000000-0000-0000-0000-000000000000"
+allowed_group_object_id = "11111111-1111-1111-1111-111111111111" # Entra group object ID allowed to read documents
+
+name_prefix = "docgw"
+environment = "dev"
+location    = "canadacentral"
+
+# Optional hardening (deploys VNet + private endpoint, runs on Elastic Premium):
+# enable_private_networking = true
